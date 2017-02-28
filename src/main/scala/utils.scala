@@ -59,6 +59,7 @@ class Utils extends Logs {
 		val loglevels: List[String] = List("debug", "info", "warn", "error", "fatal")
 		if (loglevels.contains(logLevel.toLowerCase) == false)
 			throw new Exception("Log level not exists!")
+		System.setProperty("loglevel", logLevel.toUpperCase)
 		logLevel.toLowerCase match {
 			case "debug" => log.setLevel(Level.DEBUG)
 			case "info" => log.setLevel(Level.INFO)

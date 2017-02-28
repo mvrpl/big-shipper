@@ -20,6 +20,7 @@ class Loader {
 		val delimiter = configs.DELIMITER_RAW.toStr
 		val conf = new SparkConf().setAppName("Big Shipper")
 		val sc = new SparkContext(conf)
+		sc.setLogLevel(System.getProperty("loglevel"))
 		val rawdata = sc.textFile(dirRawFiles).mapPartitions(_.drop(1))
 		val rowsRDD = rawdata.map(p => {
 			var list: collection.mutable.Seq[Any] = collection.mutable.Seq.empty[Any]

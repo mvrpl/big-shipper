@@ -4,12 +4,12 @@ import scopt.OptionParser
 import org.tsers.zeison.Zeison
 import java.lang.Boolean
 import shipper.Loader
-import utils.Utils
+import utils.{Utils, Logs}
 import scala.collection.JavaConversions._
 
 case class Args(config: String = "", loglevel: String = "info")
 
-object Shipper extends App {
+object Shipper extends App with Logs {
 	def execution(fileName:String) : Boolean = {
 		val json_project = scala.io.Source.fromFile(fileName).getLines.mkString
 		val json_configs = Zeison.parse(json_project)
@@ -25,6 +25,7 @@ object Shipper extends App {
 	parser.parse(args, Args()) map { config =>
 		new Utils logLevel(config.loglevel)
 		val fileConfig = config.config
+		info(s"Execution started with config file: $fileConfig")
 		execution(fileConfig)
 	} getOrElse {
 		System.exit(1)
