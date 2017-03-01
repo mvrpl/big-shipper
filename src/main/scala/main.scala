@@ -11,9 +11,14 @@ case class Args(config: String = "", loglevel: String = "info")
 
 object Shipper extends App with Logs {
 	def execution(fileName:String) : Boolean = {
-		val json_project = scala.io.Source.fromFile(fileName).getLines.mkString
-		val json_configs = Zeison.parse(json_project)
-		new Loader delimitedFiles(json_configs)
+		try {
+			val json_project = scala.io.Source.fromFile(fileName).getLines.mkString
+			val json_configs = Zeison.parse(json_project)
+			new Loader delimitedFiles(json_configs)
+		} catch {
+			case e: Zeison.ZeisonException => { error("Error on read JSON config file.", e);System.exit(1) }
+			case e: java.io.FileNotFoundException => { error(s"$fileName not exists.", e);System.exit(1) }
+		}
 		return true
 	}
 

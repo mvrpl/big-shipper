@@ -1,7 +1,12 @@
 package utils
 
-import org.apache.log4j.{LogManager, Logger, Level}
+import org.apache.log4j.{BasicConfigurator, PatternLayout, ConsoleAppender, RollingFileAppender, LogManager, Logger, Level}
 import org.apache.spark.sql.types._
+import org.apache.spark.sql._
+import org.apache.spark.rdd._
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkConf
+import org.tsers.zeison.Zeison
 
 trait Logs {
 	private[this] val logger = Logger.getLogger(getClass().getName())
@@ -51,14 +56,26 @@ class Utils extends Logs {
 
 	def makeSchema(schemaString: String): StructType = {
 		debug("Schema constructed: "+schemaString)
-		return StructType(schemaString.split(",").map(fieldName => StructField(fieldName.split(":")(0), fieldTypeInSchema(fieldName.split(":")(1)), true)))
+		try {
+			val schema = StructType(schemaString.split(",").map(fieldName => StructField(fieldName.split(":")(0), fieldTypeInSchema(fieldName.split(":")(1)), true)))
+			return schema
+		} catch {
+			case e: ArrayIndexOutOfBoundsException => { error("Error in making schema, verify your JSON config file.", e);System.exit(1) }
+		}
+		return new StructType()
 	}
 
 	def logLevel(logLevel: String): Boolean = {
 		val log = LogManager.getRootLogger()
-		val loglevels: List[String] = List("debug", "info", "warn", "error", "fatal")
-		if (loglevels.contains(logLevel.toLowerCase) == false)
-			throw new Exception("Log level not exists!")
+		LogManager.resetConfiguration()
+		val layout = new PatternLayout("%d{yyyy/MM/dd HH:mm:ss} [%p]: %m%n")
+		log.addAppender(new ConsoleAppender(layout))
+		try {
+			val fileAppender = new RollingFileAppender(layout, "/tmp/bigshipper.log")
+			log.addAppender(fileAppender)
+		} catch {
+			case e: java.io.IOException => { println("Error write in log file.") }
+		}
 		System.setProperty("loglevel", logLevel.toUpperCase)
 		logLevel.toLowerCase match {
 			case "debug" => log.setLevel(Level.DEBUG)
@@ -66,8 +83,31 @@ class Utils extends Logs {
 			case "warn" => log.setLevel(Level.WARN)
 			case "error" => log.setLevel(Level.ERROR)
 			case "fatal" => log.setLevel(Level.FATAL)
+			case _ => throw new Exception("Log level not exists!")
 		}
 		return true
 	}
+}
 
+class Spark extends Logs {
+
+	val conf = new SparkConf().setAppName("Big Shipper")
+	val sc = new SparkContext(conf)
+	sc.setLogLevel(System.getProperty("loglevel"))
+	val hiveContext = new hive.HiveContext(sc)
+
+	def makeDF(rows: RDD[Row], schema: StructType): DataFrame = {
+		val dataFrame = hiveContext.createDataFrame(rows, schema)
+		return dataFrame
+	}
+
+	def insertTarget(dataFrame: DataFrame, configs: Zeison.JValue): Boolean = {
+		val targetTable = configs.TARGET.HIVE_TABLE.toStr
+		val fieldsStage = configs.SOURCE.FIELDS.map(_.NAME.toStr).mkString(",")
+		dataFrame.registerTempTable("stage")
+		hiveContext.setConf("hive.exec.dynamic.partition", "true")
+		hiveContext.setConf("hive.exec.dynamic.partition.mode", "nonstrict")
+		hiveContext.sql(s"INSERT INTO TABLE $targetTable SELECT $fieldsStage FROM stage")
+		return true
+	}
 }

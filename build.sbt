@@ -1,4 +1,4 @@
-name := "Big Shipper"
+name := "BigShipper"
 
 version := "0.1"
 
