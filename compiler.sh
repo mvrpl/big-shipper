@@ -6,6 +6,7 @@ if ! type sbt &> /dev/null; then
 fi
 
 sparkVer=$(spark-submit --version 2>&1 | awk '{if(match($0, /version ([0-9\.]+$)/, v)){print v[1]}}')
+if [ $? -ne 0 ];then echo "Check GAWK installed in your system!";exit 1;fi
 
 cat <<EOF > script.scala
 util.Properties.versionString
