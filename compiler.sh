@@ -8,10 +8,11 @@ fi
 sparkVer=$(spark-submit --version 2>&1 | awk '{if(match($0, /version ([0-9\.]+$)/, v)){print v[1]}}')
 
 cat <<EOF > script.scala
+util.Properties.versionString
 System.exit(0)
 EOF
 
-scalaVer=$(spark-shell -i script.scala 2>&1 | awk '{if(match($0,/Scala version ([0-9\.]+)/,s)){print s[1]}}')
+scalaVer=$(spark-shell -i script.scala 2>&1 | awk 'END{if(match($0,/version ([0-9\.]+)/,s)){print s[1]}}')
 
 bigShipperVer="0.1"
 
