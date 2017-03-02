@@ -3,6 +3,8 @@ Spark ingestion tool for Big Data written in Scala
 
 ## Mandatory
 Installed build tool: [SBT](http://www.scala-sbt.org)
+
+Spark
 ## Beta version
 0.1 - under development
 ## Compilation
