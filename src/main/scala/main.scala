@@ -14,7 +14,16 @@ object Shipper extends App with Logs {
 		try {
 			val json_project = scala.io.Source.fromFile(fileName).getLines.mkString
 			val json_configs = Zeison.parse(json_project)
-			new Loader delimitedFiles(json_configs)
+			if (json_configs.SOURCE.TYPE.toStr == "delimitedfile"){
+				new Loader delimitedFiles(json_configs)
+			} else if (json_configs.SOURCE.TYPE.toStr == "json"){
+				info("Source type not implemented")
+			} else if (json_configs.SOURCE.TYPE.toStr == "rdbms"){
+				info("Source type not implemented")
+			} else {
+				error(s"Wrong SOURCE.TYPE in $fileName")
+				System.exit(1)
+			}
 		} catch {
 			case e: Zeison.ZeisonException => { error("Error on read JSON config file.", e);System.exit(1) }
 			case e: java.io.FileNotFoundException => { error(s"$fileName not exists.", e);System.exit(1) }
