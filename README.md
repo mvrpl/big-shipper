@@ -1,3 +1,5 @@
+[![Documentation Status](https://readthedocs.org/projects/big-shipper/badge/?version=latest)](http://big-shipper.readthedocs.io/en/latest/?badge=latest)
+
 # Big Shipper
 Spark ingestion tool for Big Data written in Scala
 
