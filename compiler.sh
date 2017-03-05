@@ -39,7 +39,7 @@ EOF
 echo "JAR making..."
 
 sbt assembly
-if [ $? -ne 0 ];then
+if [ $? -eq 0 ];then
 	echo -e "\nJAR compiled.\nRun example: spark-submit --class main.Shipper target/scala-${scalaVer%.*}/BigShipper-assembly-${bigShipperVer}.jar -c /path/config.json --loglevel error"
 else
 	echo "Failed on build .jar"
