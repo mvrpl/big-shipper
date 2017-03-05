@@ -101,6 +101,12 @@ class Spark extends Logs {
 		return dataFrame
 	}
 
+	def writeDFInTarget(dataFrame: DataFrame, configs: Zeison.JValue): Boolean = {
+		val targetTable = configs.TARGET.HIVE_TABLE.toStr
+		dataFrame.write.format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
+		return true
+	}
+
 	def insertTarget(dataFrame: DataFrame, configs: Zeison.JValue): Boolean = {
 		val targetTable = configs.TARGET.HIVE_TABLE.toStr
 		val fieldsStage = configs.SOURCE.FIELDS.map(_.NAME.toStr).mkString(",")

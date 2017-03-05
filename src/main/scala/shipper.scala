@@ -42,4 +42,14 @@ class Loader {
 		spark.insertTarget(dataFrame, configs)
 		return true
 	}
+
+	def jsonFiles(configs: Zeison.JValue) : Boolean = {
+		val sourceSchema = configs.SOURCE.SCHEMA.toStr
+		val jsonFiles = configs.SOURCE.DIR_RAW_FILES.toStr
+		val schemaSeq = spark.sc.parallelize(Seq(sourceSchema))
+		val schema = spark.hiveContext.read.json(schemaSeq).schema
+		val dataFrame = spark.hiveContext.jsonFile(jsonFiles, schema)
+		spark.writeDFInTarget(dataFrame, configs)
+		return true
+	}
 }

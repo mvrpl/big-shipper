@@ -17,7 +17,7 @@ object Shipper extends App with Logs {
 			if (json_configs.SOURCE.TYPE.toStr == "delimitedfile"){
 				new Loader delimitedFiles(json_configs)
 			} else if (json_configs.SOURCE.TYPE.toStr == "json"){
-				info("Source type not implemented")
+				new Loader jsonFiles(json_configs)
 			} else if (json_configs.SOURCE.TYPE.toStr == "rdbms"){
 				info("Source type not implemented")
 			} else {
