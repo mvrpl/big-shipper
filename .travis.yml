@@ -6,7 +6,7 @@ jdk:
   - openjdk7
 sudo: false
 script:
-  - sbt assembly
+  - sbt ++$TRAVIS_SCALA_VERSION test
   - sbt clean coverage test
 after_success:
   - sbt coveralls
