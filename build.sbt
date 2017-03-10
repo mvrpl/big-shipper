@@ -11,5 +11,4 @@ libraryDependencies += "org.apache.spark" %% "spark-core" % "1.6.0" % "provided"
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "1.6.0" % "provided"
 libraryDependencies += "org.apache.spark" %% "spark-hive" % "1.6.0" % "provided"
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.5")
 addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.1.0")
