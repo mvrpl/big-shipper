@@ -9,4 +9,4 @@ script:
   - sbt ++$TRAVIS_SCALA_VERSION test
   - sbt clean coverage test
 after_success:
-  - sbt coveralls
+  - sbt coverageReport
