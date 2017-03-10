@@ -7,3 +7,6 @@ jdk:
 sudo: false
 script:
   - sbt assembly
+  - sbt clean coverage test
+after_success:
+  - sbt coveralls
