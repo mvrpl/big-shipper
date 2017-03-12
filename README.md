@@ -1,6 +1,5 @@
 [![Documentation Status](https://readthedocs.org/projects/big-shipper/badge/?version=latest)](http://big-shipper.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://travis-ci.org/mvrpl/big-shipper.svg?branch=master)](https://travis-ci.org/mvrpl/big-shipper)
-[![Coverage Status](https://coveralls.io/repos/github/mvrpl/big-shipper/badge.svg?branch=master)](https://coveralls.io/github/mvrpl/big-shipper?branch=master)
 
 # Big Shipper
 Spark ingestion tool for Big Data written in Scala
