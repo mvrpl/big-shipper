@@ -1,4 +1,4 @@
-[![Documentation Status](https://readthedocs.org/projects/big-shipper/badge/?version=latest)](http://big-shipper.readthedocs.io/en/latest/?badge=latest)
+[![Issue Count](https://lima.codeclimate.com/github/mvrpl/big-shipper/badges/issue_count.svg)](https://lima.codeclimate.com/github/mvrpl/big-shipper)
 [![Build Status](https://travis-ci.org/mvrpl/big-shipper.svg?branch=master)](https://travis-ci.org/mvrpl/big-shipper)
 
 # Big Shipper
