@@ -9,6 +9,7 @@ import org.apache.spark.SparkConf
 import org.tsers.zeison.Zeison
 
 trait Logs {
+
 	private[this] val logger = Logger.getLogger(getClass().getName())
 
 	def debug(message: => String) = if (logger.isEnabledFor(Level.DEBUG)) logger.debug(message)
@@ -95,25 +96,32 @@ class Spark extends Logs {
 	val sc = new SparkContext(conf)
 	sc.setLogLevel(System.getProperty("loglevel"))
 	val hiveContext = new hive.HiveContext(sc)
+	hiveContext.setConf("hive.exec.dynamic.partition", "true")
+	hiveContext.setConf("hive.exec.dynamic.partition.mode", "nonstrict")
 
 	def makeDF(rows: RDD[Row], schema: StructType): DataFrame = {
 		val dataFrame = hiveContext.createDataFrame(rows, schema)
 		return dataFrame
 	}
 
-	def writeDFInTarget(dataFrame: DataFrame, configs: Zeison.JValue): Boolean = {
-		val targetTable = configs.TARGET.HIVE_TABLE.toStr
-		dataFrame.write.format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
+	def writePartitionsDF(dataFrame: DataFrame, partitions: Seq[String], targetTable: String): Boolean = {
+		dataFrame.write.partitionBy(partitions:_*).format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
 		return true
 	}
 
-	def insertTarget(dataFrame: DataFrame, configs: Zeison.JValue): Boolean = {
+	def writeDFInTarget(dataFrame: DataFrame, configs: Zeison.JValue): Boolean = {
 		val targetTable = configs.TARGET.HIVE_TABLE.toStr
-		val fieldsStage = configs.SOURCE.FIELDS.map(_.NAME.toStr).mkString(",")
-		dataFrame.registerTempTable("stage")
-		hiveContext.setConf("hive.exec.dynamic.partition", "true")
-		hiveContext.setConf("hive.exec.dynamic.partition.mode", "nonstrict")
-		hiveContext.sql(s"INSERT INTO TABLE $targetTable SELECT $fieldsStage FROM stage")
+		if (configs.TARGET.PARTITION.isDefined) {
+			if (configs.TARGET.PARTITION.isArray) {
+				val partitionsList = configs.TARGET.PARTITION.map(_.toStr).toSeq
+				writePartitionsDF(dataFrame, partitionsList, targetTable)
+			} else {
+				val partitionName = configs.TARGET.PARTITION.toStr
+				dataFrame.write.partitionBy(partitionName).format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
+			}
+		} else {
+			dataFrame.write.format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
+		}
 		return true
 	}
 }

@@ -39,7 +39,7 @@ class Loader {
 			Row.fromSeq(list)
 		})
 		val dataFrame = spark.makeDF(rowsRDD, schema)
-		spark.insertTarget(dataFrame, configs)
+		spark.writeDFInTarget(dataFrame, configs)
 		return true
 	}
 
