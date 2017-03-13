@@ -49,7 +49,7 @@ spark-submit --class main.Shipper target/scala-[version, like: 2.10]/BigShipper-
 	}
 }
 ```
-***SOURCE.TYPE:*** Only delimited file implemented. Values: [delimitedfile]
+***SOURCE.TYPE:*** Type of source file(s). Values: [delimitedfile, json]
 
 ***SOURCE.FIELDS.TYPE:*** Data types for fields. Values: [bigint, int, smallint, tinyint, double, decimal, float, byte,  string, date, timestamp and boolean]
 
