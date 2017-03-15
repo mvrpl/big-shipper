@@ -94,6 +94,7 @@ class Spark extends Logs {
 
 	val conf = new SparkConf().setAppName("Big Shipper")
 	val sc = new SparkContext(conf)
+	val sparkVer = sc.version.take(1).toInt
 	sc.setLogLevel(System.getProperty("loglevel"))
 	val hiveContext = new hive.HiveContext(sc)
 	hiveContext.setConf("hive.exec.dynamic.partition", "true")
@@ -117,7 +118,12 @@ class Spark extends Logs {
 				writePartitionsDF(dataFrame, partitionsList, targetTable)
 			} else {
 				val partitionName = configs.TARGET.PARTITION.toStr
-				dataFrame.write.partitionBy(partitionName).format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
+				if (sparkVer >= 2) {
+					val reOrder = dataFrame.columns.filter(_ != partitionName) :+ partitionName
+					dataFrame.select(reOrder.map(col):_*).write.format("orc").mode(SaveMode.Append).insertInto(targetTable)
+				} else {
+					dataFrame.write.partitionBy(partitionName).format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
+				}
 			}
 		} else {
 			dataFrame.write.format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
