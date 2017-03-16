@@ -94,7 +94,7 @@ class Spark extends Logs {
 
 	val conf = new SparkConf().setAppName("Big Shipper")
 	val sc = new SparkContext(conf)
-	val sparkVer = sc.version.take(1).toInt
+	val sparkVer = sc.version.take(3).toDouble
 	sc.setLogLevel(System.getProperty("loglevel"))
 	val hiveContext = new hive.HiveContext(sc)
 	hiveContext.setConf("hive.exec.dynamic.partition", "true")
@@ -106,7 +106,18 @@ class Spark extends Logs {
 	}
 
 	def writePartitionsDF(dataFrame: DataFrame, partitions: Seq[String], targetTable: String): Boolean = {
-		dataFrame.write.partitionBy(partitions:_*).format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
+		if (sparkVer >= 2.0) {
+			val reOrder = dataFrame.columns.filter(!partitions.contains(_)) ++ partitions 
+			dataFrame.select(reOrder.map(functions.col):_*).write.format("orc").mode(SaveMode.Append).insertInto(targetTable)
+		} else if (sparkVer >= 1.4) {
+			dataFrame.write.partitionBy(partitions:_*).format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
+		}
+		return true
+	}
+
+	def writeSelectedColsDF(dataFrame: DataFrame, partitionName: String, targetTable: String): Boolean = {
+		val reOrder = dataFrame.columns.filter(_ != partitionName) :+ partitionName
+		dataFrame.select(reOrder.map(functions.col):_*).write.format("orc").mode(SaveMode.Append).insertInto(targetTable)
 		return true
 	}
 
@@ -118,15 +129,18 @@ class Spark extends Logs {
 				writePartitionsDF(dataFrame, partitionsList, targetTable)
 			} else {
 				val partitionName = configs.TARGET.PARTITION.toStr
-				if (sparkVer >= 2) {
-					val reOrder = dataFrame.columns.filter(_ != partitionName) :+ partitionName
-					dataFrame.select(reOrder.map(col):_*).write.format("orc").mode(SaveMode.Append).insertInto(targetTable)
-				} else {
+				if (sparkVer >= 2.0) {
+					writeSelectedColsDF(dataFrame, partitionName, targetTable)
+				} else if (sparkVer >= 1.4) {
 					dataFrame.write.partitionBy(partitionName).format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
 				}
 			}
 		} else {
-			dataFrame.write.format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
+			if (sparkVer >= 2.0) {
+				dataFrame.write.format("orc").mode(SaveMode.Append).insertInto(targetTable)
+			} else if (sparkVer >= 1.4) {
+				dataFrame.write.format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
+			}
 		}
 		return true
 	}
