@@ -94,7 +94,7 @@ class Spark extends Logs {
 
 	val conf = new SparkConf().setAppName("Big Shipper")
 	val sc = new SparkContext(conf)
-	val sparkVer = sc.version.take(3).toDouble
+	val sparkVer = "^[0-9]{1,2}\\.[0-9]{1,2}".r.findFirstIn(sc.version).get.toDouble
 	sc.setLogLevel(System.getProperty("loglevel"))
 	val hiveContext = new hive.HiveContext(sc)
 	hiveContext.setConf("hive.exec.dynamic.partition", "true")
