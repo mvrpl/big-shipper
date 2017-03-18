@@ -105,41 +105,46 @@ class Spark extends Logs {
 		return dataFrame
 	}
 
-	def writePartitionsDF(dataFrame: DataFrame, partitions: Seq[String], targetTable: String): Boolean = {
+	def writePartitionsDF(dataFrame: DataFrame, partitions: Seq[String], targetTable: String, saveModeDF: SaveMode): Boolean = {
 		if (sparkVer >= 2.0) {
 			val reOrder = dataFrame.columns.filter(!partitions.contains(_)) ++ partitions 
-			dataFrame.select(reOrder.map(functions.col):_*).write.format("orc").mode(SaveMode.Append).insertInto(targetTable)
+			dataFrame.select(reOrder.map(functions.col):_*).write.format("orc").mode(saveModeDF).insertInto(targetTable)
 		} else if (sparkVer >= 1.4) {
-			dataFrame.write.partitionBy(partitions:_*).format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
+			dataFrame.write.partitionBy(partitions:_*).format("orc").mode(saveModeDF).saveAsTable(targetTable)
 		}
 		return true
 	}
 
-	def writeSelectedColsDF(dataFrame: DataFrame, partitionName: String, targetTable: String): Boolean = {
+	def writeSelectedColsDF(dataFrame: DataFrame, partitionName: String, targetTable: String, saveModeDF: SaveMode): Boolean = {
 		val reOrder = dataFrame.columns.filter(_ != partitionName) :+ partitionName
-		dataFrame.select(reOrder.map(functions.col):_*).write.format("orc").mode(SaveMode.Append).insertInto(targetTable)
+		dataFrame.select(reOrder.map(functions.col):_*).write.format("orc").mode(saveModeDF).insertInto(targetTable)
 		return true
+	}
+
+	def updateTarget(left: DataFrame, right: DataFrame, key: String): DataFrame = {
+		left.alias("l").join(right.alias("r"), functions.col(s"l.$key") === functions.col(s"r.$key"), "fullouter").select(left.columns.map( colName => functions.coalesce( functions.col(s"r.$colName"), functions.col(s"l.$colName") ).alias(s"$colName")):_*)
 	}
 
 	def writeDFInTarget(dataFrame: DataFrame, configs: Zeison.JValue): Boolean = {
 		val targetTable = configs.TARGET.HIVE_TABLE.toStr
+		val saveModeDF = if (configs.TARGET.ACTION.toStr.toLowerCase == "update") SaveMode.Overwrite else SaveMode.Append
 		if (configs.TARGET.PARTITION.isDefined) {
 			if (configs.TARGET.PARTITION.isArray) {
 				val partitionsList = configs.TARGET.PARTITION.map(_.toStr).toSeq
-				writePartitionsDF(dataFrame, partitionsList, targetTable)
+				writePartitionsDF(dataFrame, partitionsList, targetTable, saveModeDF)
 			} else {
 				val partitionName = configs.TARGET.PARTITION.toStr
 				if (sparkVer >= 2.0) {
-					writeSelectedColsDF(dataFrame, partitionName, targetTable)
+					writeSelectedColsDF(dataFrame, partitionName, targetTable, saveModeDF)
 				} else if (sparkVer >= 1.4) {
-					dataFrame.write.partitionBy(partitionName).format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
+					dataFrame.write.partitionBy(partitionName).format("orc").mode(saveModeDF).saveAsTable(targetTable)
 				}
 			}
 		} else {
 			if (sparkVer >= 2.0) {
-				dataFrame.write.format("orc").mode(SaveMode.Append).insertInto(targetTable)
+				dataFrame.write.format("orc").mode(saveModeDF).insertInto(targetTable)
 			} else if (sparkVer >= 1.4) {
-				dataFrame.write.format("orc").mode(SaveMode.Append).saveAsTable(targetTable)
+				dataFrame.write.format("orc").mode(saveModeDF).saveAsTable(targetTable)
 			}
 		}
 		return true

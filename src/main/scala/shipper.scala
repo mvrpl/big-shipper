@@ -49,7 +49,14 @@ class Loader {
 		val schemaSeq = spark.sc.parallelize(Seq(sourceSchema))
 		val schema = spark.hiveContext.read.json(schemaSeq).schema
 		val dataFrame = spark.hiveContext.jsonFile(jsonFiles, schema)
-		spark.writeDFInTarget(dataFrame, configs)
+		if (configs.TARGET.ACTION.toStr.toLowerCase == "update"){
+			val targetTable = configs.TARGET.HIVE_TABLE.toStr
+			val targetDF = spark.hiveContext.sql(s"select * from $targetTable").toDF
+			val updateDF = spark.updateTarget(targetDF, dataFrame, configs.TARGET.UPDATEKEY.toStr)
+			spark.writeDFInTarget(updateDF, configs)
+		} else {
+			spark.writeDFInTarget(dataFrame, configs)
+		}
 		return true
 	}
 }
