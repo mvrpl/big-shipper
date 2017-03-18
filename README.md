@@ -21,7 +21,7 @@ This script generate **target/scala-[version, like: 2.10]/BigShipper-assembly-0.
 ```sh
 spark-submit --class main.Shipper target/scala-[version, like: 2.10]/BigShipper-assembly-0.1.jar -c /path_to/config.json --loglevel debug
 ```
-####Config example:
+#### Config example:
 ```json
 {
 	"SOURCE":{
@@ -45,6 +45,7 @@ spark-submit --class main.Shipper target/scala-[version, like: 2.10]/BigShipper-
 	},
 	"TARGET":{
 		"TYPE": "hive",
+		"ACTION": "append",
 		"HIVE_TABLE": "table_name_here"
 	}
 }
