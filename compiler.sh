@@ -19,7 +19,7 @@ bigShipperVer="0.1"
 
 rm -f script.scala
 
-echo "Creating build.sbt with Spark version ${sparkVer} and Scala version ${scalaVer}"
+echo "Creating build.sbt with Spark version ${sparkVer:?Error while getting spark version} and Scala version ${scalaVer:?Error while getting scala version}"
 
 cat <<EOF > build.sbt
 name := "BigShipper"
