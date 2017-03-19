@@ -121,7 +121,7 @@ class Spark extends Logs {
 		return true
 	}
 
-	def updateTarget(left: DataFrame, right: DataFrame, key: String): DataFrame = {
+	def updateDF(left: DataFrame, right: DataFrame, key: String): DataFrame = {
 		left.alias("l").join(right.alias("r"), functions.col(s"l.$key") === functions.col(s"r.$key"), "fullouter").select(left.columns.map( colName => functions.coalesce( functions.col(s"r.$colName"), functions.col(s"l.$colName") ).alias(s"$colName")):_*)
 	}
 

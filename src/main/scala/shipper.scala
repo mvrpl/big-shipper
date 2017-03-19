@@ -39,7 +39,14 @@ class Loader {
 			Row.fromSeq(list)
 		})
 		val dataFrame = spark.makeDF(rowsRDD, schema)
-		spark.writeDFInTarget(dataFrame, configs)
+		if (configs.TARGET.ACTION.toStr.toLowerCase == "update"){
+			val targetTable = configs.TARGET.HIVE_TABLE.toStr
+			val targetDF = spark.hiveContext.sql(s"select * from $targetTable").toDF
+			val updateDF = spark.updateDF(targetDF, dataFrame, configs.TARGET.UPDATEKEY.toStr)
+			spark.writeDFInTarget(updateDF, configs)
+		} else {
+			spark.writeDFInTarget(dataFrame, configs)
+		}
 		return true
 	}
 
@@ -52,7 +59,7 @@ class Loader {
 		if (configs.TARGET.ACTION.toStr.toLowerCase == "update"){
 			val targetTable = configs.TARGET.HIVE_TABLE.toStr
 			val targetDF = spark.hiveContext.sql(s"select * from $targetTable").toDF
-			val updateDF = spark.updateTarget(targetDF, dataFrame, configs.TARGET.UPDATEKEY.toStr)
+			val updateDF = spark.updateDF(targetDF, dataFrame, configs.TARGET.UPDATEKEY.toStr)
 			spark.writeDFInTarget(updateDF, configs)
 		} else {
 			spark.writeDFInTarget(dataFrame, configs)
