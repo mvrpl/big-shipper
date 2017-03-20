@@ -6,3 +6,4 @@ jdk:
 sudo: false
 script:
   - sbt assembly
+  - sbt scalastyle
