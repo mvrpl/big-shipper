@@ -7,9 +7,18 @@ Spark ingestion tool for Big Data written in Scala
 ## Mandatory
 Installed build tool: [SBT](http://www.scala-sbt.org)
 
-Spark
+Spark 1.4+
 ## Beta version
 0.1 - under development
+
+## Stack
+
+* [Scala](https://www.scala-lang.org/) - Functional Programming Language
+* [SBT](http://www.scala-sbt.org) - Scala interactive build tool.
+* [Scalastyle](http://www.scalastyle.org/) - Scalastyle examines Scala code and indicates potential problems with it.
+* [Apache Spark](http://spark.apache.org/) - Apache Spark is a fast and general engine for large-scale data processing.
+* [Travis-ci](https://travis-ci.org/) - Travis CI is a hosted, distributed continuous integration service used to build and test software projects.
+
 ## Compilation
 Run script compiler.sh
 ```sh
