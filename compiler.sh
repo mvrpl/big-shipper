@@ -5,19 +5,20 @@ if ! type sbt &> /dev/null; then
 	exit 1
 fi
 
-sparkVer=$(spark-submit --version 2>&1 | awk '{if(match($0, /version ([0-9\.]+$)/, v)){print v[1]}}')
-if [ $? -ne 0 ];then echo "Check GAWK installed in your system!";exit 1;fi
-
 cat <<EOF > script.scala
-util.Properties.versionString
+util.Properties.versionString.replace("version ", "")
+"^[0-9]+\\\.[0-9]+\\\.[0-9]+".r.findFirstIn(sc.version).get
 System.exit(0)
 EOF
 
-scalaVer=$(spark-shell -i script.scala 2>&1 | awk '{if(match($0,/^res0.*version ([0-9\.]+)/,s)){print s[1]}}')
+spark-shell -i script.scala 2> /dev/null | awk '{if($0 ~ /^res0/){split($0, ver, /=\s/);print ver[2]};if($0 ~ /^res1/){split($0, ver, /=\s/);print ver[2]}}' > versions.txt
+mapfile -t ver < versions.txt
 
 bigShipperVer="0.1"
+scalaVer=${ver[0]}
+sparkVer=${ver[1]}
 
-rm -f script.scala
+rm -f script.scala versions.txt
 
 echo "Creating build.sbt with Spark version ${sparkVer:?Error while getting spark version} and Scala version ${scalaVer:?Error while getting scala version}"
 
