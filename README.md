@@ -13,7 +13,7 @@ Spark 1.4+
 
 ## Stack
 
-* [Scala](https://www.scala-lang.org/) - Functional Programming Language
+* [Scala](https://www.scala-lang.org/) - Object-Oriented Meets Functional Programming Language.
 * [SBT](http://www.scala-sbt.org) - Scala interactive build tool.
 * [Scalastyle](http://www.scalastyle.org/) - Scalastyle examines Scala code and indicates potential problems with it.
 * [Apache Spark](http://spark.apache.org/) - Apache Spark is a fast and general engine for large-scale data processing.
