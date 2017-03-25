@@ -44,8 +44,6 @@ class Loader {
 			Row.fromSeq(list)
 		})
 		val dataFrame = spark.makeDF(rowsRDD, schema)
-		dataFrame.show()
-		System.exit(0)
 		if (configs.TARGET.ACTION.toStr.toLowerCase == "update"){
 			val targetTable = configs.TARGET.HIVE_TABLE.toStr
 			val targetDF = spark.hiveContext.sql(s"select * from $targetTable").toDF
