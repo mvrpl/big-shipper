@@ -19,7 +19,12 @@ class Loader {
 		val rowsRDD = rawdata.map(p => {
 			var list: collection.mutable.Seq[Any] = collection.mutable.Seq.empty[Any]
 			var index = 0
-			var fields = p.split(delimiter.charAt(0))
+			if (configs.SOURCE.QUOTEFIELD.isDefined) {
+				val quote = configs.SOURCE.QUOTEFIELD.toStr
+				val fields = p.split("\\%s(?=([^\\%s]*\\%s[^\\%s]*\\%s)*[^\\%s]*$)".format(delimiter,quote,quote,quote,quote,quote)).map(_.stripPrefix("\\%s".format(quote)).stripSuffix("\\%s".format(quote)))
+			} else {
+				var fields = p.split(delimiter.charAt(0))
+			}
 			fields.foreach(value => {
 				var valType = schema.fields(index).dataType
 				var returnVal: Any = null
@@ -39,6 +44,8 @@ class Loader {
 			Row.fromSeq(list)
 		})
 		val dataFrame = spark.makeDF(rowsRDD, schema)
+		dataFrame.show()
+		System.exit(0)
 		if (configs.TARGET.ACTION.toStr.toLowerCase == "update"){
 			val targetTable = configs.TARGET.HIVE_TABLE.toStr
 			val targetDF = spark.hiveContext.sql(s"select * from $targetTable").toDF
