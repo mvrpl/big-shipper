@@ -72,6 +72,7 @@ libraryDependencies += "log4j" % "log4j" % "1.2.14"
 libraryDependencies += "org.apache.spark" %% "spark-core" % "$sparkVer" % "provided"
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "$sparkVer" % "provided"
 libraryDependencies += "org.apache.spark" %% "spark-hive" % "$sparkVer" % "provided"
+libraryDependencies += "com.databricks" % "spark-csv_${scalaVer%.*}" % "1.5.0"
 EOF
 
 echo "JAR making..."
