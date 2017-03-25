@@ -48,7 +48,7 @@ util.Properties.versionString.replace("version ", "")
 System.exit(0)
 EOF
 
-spark-shell -i script.scala 2> /dev/null | awk '{if($0 ~ /^res0/){split($0, ver, /=\s/);print ver[2]};if($0 ~ /^res1/){split($0, ver, /=\s/);print ver[2]}}' > versions.txt
+spark-shell -i script.scala 2> /dev/null | awk '{if($0 ~ /^res0/){split($0, ver, /= /);print ver[2]};if($0 ~ /^res1/){split($0, ver, /= /);print ver[2]}}' > versions.txt
 mapfile -t ver < versions.txt
 
 bigShipperVer="0.1"
@@ -81,6 +81,7 @@ if [ $? -eq 0 ];then
 	echo -e "\nJAR compiled.\nRun example: spark-submit --class main.Shipper target/scala-${scalaVer%.*}/BigShipper-assembly-${bigShipperVer}.jar -c /path/config.json --loglevel error\n"
 else
 	echo "Failed on build .jar"
+	exit 1
 fi
 
 if ask "Analyze Scala code?"; then
