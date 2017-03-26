@@ -100,11 +100,6 @@ class Spark extends Logs {
 	hiveContext.setConf("hive.exec.dynamic.partition", "true")
 	hiveContext.setConf("hive.exec.dynamic.partition.mode", "nonstrict")
 
-	def makeDF(rows: RDD[Row], schema: StructType): DataFrame = {
-		val dataFrame = hiveContext.createDataFrame(rows, schema)
-		return dataFrame
-	}
-
 	def writePartitionsDF(dataFrame: DataFrame, partitions: Seq[String], targetTable: String, saveModeDF: SaveMode): Boolean = {
 		if (sparkVer >= 2.0) {
 			val reOrder = dataFrame.columns.filter(!partitions.contains(_)) ++ partitions 
@@ -139,6 +134,28 @@ class Spark extends Logs {
 				} else if (sparkVer >= 1.4) {
 					dataFrame.write.partitionBy(partitionName).format("orc").mode(saveModeDF).saveAsTable(targetTable)
 				}
+			}
+		} else if (configs.TARGET.CUSTOMPARTITION.isDefined) {
+			val partitions = configs.TARGET.CUSTOMPARTITION.map(_.map(_.toStr).toSeq).toSeq
+			var dataDF: DataFrame = dataFrame
+			partitions.foreach(values => {
+				if (values.size != 2) {
+					error("The custom partitions need 2 values every item: [NAME, VALUE]")
+					System.exit(1)
+				}
+				if (values(1).startsWith("D{") && values(1).endsWith("}")) {
+					val formatD = values(1).stripPrefix("D{").stripSuffix("}")
+					val format = new java.text.SimpleDateFormat(formatD)
+					dataDF = dataDF.withColumn(values(0), functions.lit(format.format(new java.util.Date()))) 
+				} else {
+					dataDF = dataDF.withColumn(values(0), functions.lit(values(1))) 
+				}
+			})
+			if (sparkVer >= 2.0) {
+				dataDF.write.format("orc").mode(saveModeDF).insertInto(targetTable)
+			} else if (sparkVer >= 1.4) {
+				val partitionsDF = partitions.map(_(0))
+				writePartitionsDF(dataDF, partitionsDF, targetTable, saveModeDF)
 			}
 		} else {
 			if (sparkVer >= 2.0) {
