@@ -12,6 +12,7 @@ if (( $(echo "${sparkVer%.*} < 2.0" | bc -l) )); then
 fi
 
 if ! grep -q "spark-testing-base" build.sbt;then
+	echo "libraryDependencies += \"org.scalatest\" %% \"scalatest\" % \"3.0.1\" % \"test\"" >> build.sbt
 	echo "libraryDependencies += \"com.holdenkarau\" %% \"spark-testing-base\" % \"${sparkVer}_0.3.3\"" >> build.sbt
 fi
 
