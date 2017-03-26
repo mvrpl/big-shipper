@@ -4,9 +4,8 @@ import org.apache.log4j.{BasicConfigurator, PatternLayout, ConsoleAppender, Roll
 import org.apache.spark.sql.types._
 import org.apache.spark.sql._
 import org.apache.spark.rdd._
-import org.apache.spark.SparkContext
-import org.apache.spark.SparkConf
 import org.tsers.zeison.Zeison
+import org.apache.spark.SparkContext
 
 trait Logs {
 
@@ -90,10 +89,9 @@ class Utils extends Logs {
 	}
 }
 
-class Spark extends Logs {
+class Spark(sparkC: SparkContext) extends Logs {
 
-	val conf = new SparkConf().setAppName("Big Shipper")
-	val sc = new SparkContext(conf)
+	val sc = sparkC
 	val sparkVer = "^[0-9]{1,2}\\.[0-9]{1,2}".r.findFirstIn(sc.version).get.toDouble
 	sc.setLogLevel(System.getProperty("loglevel"))
 	val hiveContext = new hive.HiveContext(sc)

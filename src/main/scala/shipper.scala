@@ -4,11 +4,12 @@ import org.tsers.zeison.Zeison
 import utils.{Utils, Spark, Logs}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
+import org.apache.spark.SparkContext
 
-class Loader extends Logs {
+class Loader(sc: SparkContext) extends Logs {
 
 	val utils = new Utils
-	val spark = new Spark
+	val spark = new Spark(sc)
 
 	def delimitedFiles(configs: Zeison.JValue) : Boolean = {
 		val fields = configs.SOURCE.FIELDS.map(f => "%s:%s".format(f.NAME.toStr, f.TYPE.toStr.toLowerCase)).mkString(",")

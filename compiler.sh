@@ -73,11 +73,12 @@ libraryDependencies += "org.apache.spark" %% "spark-core" % "$sparkVer" % "provi
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "$sparkVer" % "provided"
 libraryDependencies += "org.apache.spark" %% "spark-hive" % "$sparkVer" % "provided"
 libraryDependencies += "com.databricks" % "spark-csv_${scalaVer%.*}" % "1.5.0"
+libraryDependencies += "org.scalatest" % "scalatest_${scalaVer%.*}" % "1.9.1" % "test"
 EOF
 
 echo "JAR making..."
 
-sbt assembly
+sbt 'set test in assembly := {}' clean assembly
 if [ $? -eq 0 ];then
 	echo -e "\nJAR compiled.\nRun example: spark-submit --class main.Shipper target/scala-${scalaVer%.*}/BigShipper-assembly-${bigShipperVer}.jar -c /path/config.json --loglevel error\n"
 else

@@ -6,18 +6,24 @@ import java.lang.Boolean
 import shipper.Loader
 import utils.{Utils, Logs}
 import scala.collection.JavaConversions._
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkConf
 
 case class Args(config: String = "", loglevel: String = "info")
 
 object Shipper extends App with Logs {
+
 	def execution(fileName:String) : Boolean = {
+		val conf = new SparkConf().setAppName("Big Shipper")
+		val sc = new SparkContext(conf)
+		val loader = new Loader(sc)
 		try {
 			val json_project = scala.io.Source.fromFile(fileName).getLines.mkString
 			val json_configs = Zeison.parse(json_project)
 			if (json_configs.SOURCE.TYPE.toStr == "delimitedfile"){
-				new Loader delimitedFiles(json_configs)
+				loader.delimitedFiles(json_configs)
 			} else if (json_configs.SOURCE.TYPE.toStr == "json"){
-				new Loader jsonFiles(json_configs)
+				loader.jsonFiles(json_configs)
 			} else if (json_configs.SOURCE.TYPE.toStr == "rdbms"){
 				info("Source type not implemented")
 			} else {
