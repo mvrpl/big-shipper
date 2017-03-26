@@ -15,6 +15,7 @@ Spark 1.4+
 
 * [Scala](https://www.scala-lang.org/) - Object-Oriented Meets Functional Programming Language.
 * [SBT](http://www.scala-sbt.org) - Scala interactive build tool.
+* [ScalaTest](http://www.scalatest.org) - The central concept in ScalaTest is the suite, a collection of zero to many tests.
 * [Scalastyle](http://www.scalastyle.org/) - Scalastyle examines Scala code and indicates potential problems with it.
 * [Apache Spark](http://spark.apache.org/) - Apache Spark is a fast and general engine for large-scale data processing.
 * [Travis-ci](https://travis-ci.org/) - Travis CI is a hosted, distributed continuous integration service used to build and test software projects.
