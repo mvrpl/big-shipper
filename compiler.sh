@@ -73,7 +73,6 @@ libraryDependencies += "org.apache.spark" %% "spark-core" % "$sparkVer" % "provi
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "$sparkVer" % "provided"
 libraryDependencies += "org.apache.spark" %% "spark-hive" % "$sparkVer" % "provided"
 libraryDependencies += "com.databricks" % "spark-csv_${scalaVer%.*}" % "1.5.0"
-libraryDependencies += "org.scalatest" % "scalatest_${scalaVer%.*}" % "1.9.1" % "test"
 EOF
 
 echo "JAR making..."
