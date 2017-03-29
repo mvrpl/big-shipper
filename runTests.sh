@@ -5,7 +5,7 @@ if ! type sbt &> /dev/null; then
 	exit 1
 fi
 
-sparkVer=$(spark-shell --version 2>&1 | awk '{if($0 ~ /version/ && match($0,/[0-9]\.[0-9]\.[0-9]/,v)){print v[0]}}')
+sparkVer=$(spark-shell --version 2>&1 | awk '{if($0 ~ /version [0-9\.]+$/ && match($0,/[0-9]\.[0-9]\.[0-9]/,v)){print v[0]}}')
 if (( $(echo "${sparkVer%.*} < 2.0" | bc -l) )); then
 	echo "Tests not working in Spark version below 2.0."
 	exit 1
