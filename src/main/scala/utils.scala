@@ -142,9 +142,13 @@ class Spark(sparkC: SparkContext) extends Logs {
 					System.exit(1)
 				}
 				if (values(1).startsWith("D{") && values(1).endsWith("}")) {
-					val formatD = values(1).stripPrefix("D{").stripSuffix("}")
-					val format = new java.text.SimpleDateFormat(formatD)
+					val value = values(1).stripPrefix("D{").stripSuffix("}")
+					val format = new java.text.SimpleDateFormat(value)
 					dataDF = dataDF.withColumn(values(0), functions.lit(format.format(new java.util.Date()))) 
+				} else if (values(1).startsWith("E{") && values(1).endsWith("}")) {
+					val value = values(1).stripPrefix("E{").stripSuffix("}")
+					val envVal = sys.env(value)
+					dataDF = dataDF.withColumn(values(0), functions.lit(envVal)) 
 				} else {
 					dataDF = dataDF.withColumn(values(0), functions.lit(values(1))) 
 				}
