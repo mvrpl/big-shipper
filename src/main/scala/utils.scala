@@ -100,7 +100,7 @@ class Spark(sparkC: SparkContext) extends Logs {
 
 	def writePartitionsDF(dataFrame: DataFrame, partitions: Seq[String], targetTable: String, saveModeDF: SaveMode): Boolean = {
 		if (sparkVer >= 2.0) {
-			val reOrder = dataFrame.columns.filter(!partitions.contains(_)) ++ partitions 
+			val reOrder = dataFrame.columns.filter(!partitions.contains(_)) ++ partitions
 			dataFrame.select(reOrder.map(functions.col):_*).write.format("orc").mode(saveModeDF).insertInto(targetTable)
 		} else if (sparkVer >= 1.4) {
 			dataFrame.write.partitionBy(partitions:_*).format("orc").mode(saveModeDF).saveAsTable(targetTable)
@@ -144,13 +144,13 @@ class Spark(sparkC: SparkContext) extends Logs {
 				if (values(1).startsWith("D{") && values(1).endsWith("}")) {
 					val value = values(1).stripPrefix("D{").stripSuffix("}")
 					val format = new java.text.SimpleDateFormat(value)
-					dataDF = dataDF.withColumn(values(0), functions.lit(format.format(new java.util.Date()))) 
+					dataDF = dataDF.withColumn(values(0), functions.lit(format.format(new java.util.Date())))
 				} else if (values(1).startsWith("E{") && values(1).endsWith("}")) {
 					val value = values(1).stripPrefix("E{").stripSuffix("}")
 					val envVal = sys.env(value)
-					dataDF = dataDF.withColumn(values(0), functions.lit(envVal)) 
+					dataDF = dataDF.withColumn(values(0), functions.lit(envVal))
 				} else {
-					dataDF = dataDF.withColumn(values(0), functions.lit(values(1))) 
+					dataDF = dataDF.withColumn(values(0), functions.lit(values(1)))
 				}
 			})
 			if (sparkVer >= 2.0) {
